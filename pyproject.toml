@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "alignlab"
+version = "0.1.0"
+description = "Preference-based alignment from scratch with measured reward accuracy, KL cost, and policy gain"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+include = ["alignlab*"]
