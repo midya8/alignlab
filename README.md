@@ -21,8 +21,8 @@ Without the KL term (beta=0): KL 1.7781, entropy 0.0136
 
 What the fixture shows, stated plainly:
 
-- The learned reward generalizes: 0.7800 holdout preference accuracy against 0.4333 for a model trained on utility-independent labels (below chance, as a noise-trained model should be).
-- Aligning to the learned reward buys real utility, not just reward hacking: true latent utility rises 2.0375 to 4.6154. The negative control matters here - aligning to the noise-trained model buys only 2.0375 to 2.5800, so the gain is demonstrably carried by preference signal, not by the optimization machinery alone.
+- The learned reward generalizes: 0.7800 holdout preference accuracy against 0.4333 for a model trained on utility-independent labels (utility-independent labels are expected to sit near chance on average; this finite seeded fixture lands at 0.4333).
+- Aligning to the learned reward buys real utility, not just reward hacking: true latent utility rises 2.0375 to 4.6154. The negative control matters here - aligning to the noise-trained model buys only 2.0375 to 2.5800 on this seeded fixture, so on this fixture the gain tracks preference signal rather than the optimization machinery alone. One seeded control is a fixture comparison, not a general proof.
 - The KL term is what keeps the policy spread out: with beta=0 the policy collapses onto the argmax-reward style (entropy 0.0136 vs 0.7701, KL 1.7781 vs 1.0216). The beta=0 ablation is gated from below so this stays demonstrated, not asserted.
 - Reward accuracy is bounded by preference noise: labels are drawn from sigmoid utility gaps, so even the Bayes-optimal ranker falls short of 1.0, and the suite pins an achievable gate (0.75), not a perfect one.
 
