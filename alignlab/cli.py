@@ -27,7 +27,32 @@ def main(argv=None) -> int:
     p_gate.add_argument("--min-nokl-kl", type=float, default=None,
                         help="beta=0 ablation must pay at least this KL (proves the penalty is what keeps the policy close)")
 
+    p_front = sub.add_parser('frontier-audit', help='audit a bounded finite-policy JSON file')
+    p_front.add_argument('input')
+    p_demo = sub.add_parser('frontier-demo', help='reproduce original training and full trajectories')
+    p_demo.add_argument('output')
     args = parser.parse_args(argv)
+    if args.command == 'frontier-audit':
+        from pathlib import Path
+        from .frontier_report import parse_json, report
+        try:
+            payload = parse_json(Path(args.input).read_bytes())
+            print(json.dumps(report(payload), sort_keys=True, allow_nan=False))
+            return 0
+        except (OSError, ValueError, UnicodeError) as exc:
+            print('Cannot audit: ' + str(exc), file=sys.stderr)
+            return 2
+    if args.command == 'frontier-demo':
+        from .frontier_fixtures import write_fixture
+        try:
+            value = write_fixture(args.output)
+            print(json.dumps({'schema': value['schema'], 'runs': len(value['runs']),
+                              'states': sum(len(r['trajectory']) for r in value['runs'].values()),
+                              'original_report': value['original_report']}, sort_keys=True, allow_nan=False))
+            return 0
+        except (OSError, ValueError) as exc:
+            print('Cannot reproduce: ' + str(exc), file=sys.stderr)
+            return 2
     results = run_evaluation()
 
     if args.command == "evaluate":
