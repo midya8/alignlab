@@ -19,7 +19,7 @@ from alignlab.frontier import audit_policy
 from alignlab.frontier_report import report
 from alignlab.frontier_witnesses import controls,witnesses
 root=pathlib.Path(alignlab.__file__).parent/'frontier_data'
-f=json.loads(gzip.decompress((root/'frozen.json.gz').read_bytes()))
+f=json.loads(gzip.decompress((root/'3-frozen.json.gz').read_bytes()))
 r=json.loads(pathlib.Path('regenerated.json').read_text())
 def compare(a,b,path='',tol=1e-11):
     if isinstance(a,dict):
@@ -34,7 +34,7 @@ def compare(a,b,path='',tol=1e-11):
 compare(f,r)
 assert json.load(open('evaluate.json'))==json.load(open('demo.json'))['original_report']
 compare(json.load(open('evaluate.json')),f['original_report'])
-w=json.loads(gzip.decompress((root/'witnesses.json.gz').read_bytes()))
+w=json.loads(gzip.decompress((root/'4-witnesses.json.gz').read_bytes()))
 assert len(w['witnesses'])==35
 for item in w['witnesses']:compare(item['report'],report(item['input']),tol=1e-12)
 for name,run in f['runs'].items():
