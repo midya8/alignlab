@@ -12,9 +12,9 @@ class ArchiveTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         root = Path(__file__).resolve().parents[1]
-        cls.frozen = json.loads(gzip.decompress((root/'alignlab/frontier_data/frozen.json.gz').read_bytes()))
-        cls.witnesses = json.loads(gzip.decompress((root/'alignlab/frontier_data/witnesses.json.gz').read_bytes()))
-        cls.web = json.loads((root/'docs/data.js').read_text().split('window.ALIGN_DATA=',1)[1].rstrip().removesuffix(';'))
+        cls.frozen = json.loads(gzip.decompress((root/'alignlab/frontier_data/3-frozen.json.gz').read_bytes()))
+        cls.witnesses = json.loads(gzip.decompress((root/'alignlab/frontier_data/4-witnesses.json.gz').read_bytes()))
+        cls.web = json.loads((root/'docs/2-data.js').read_text().split('window.ALIGN_DATA=',1)[1].rstrip().removesuffix(';'))
 
     def compare(self, a, b, tol=1e-12, path='root'):
         if isinstance(a,dict):
