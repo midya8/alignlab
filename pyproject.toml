@@ -12,3 +12,6 @@ requires-python = ">=3.10"
 
 [tool.setuptools.packages.find]
 include = ["alignlab*"]
+
+[tool.setuptools.package-data]
+alignlab = ["frontier_data/*.json.gz"]

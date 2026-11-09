@@ -12,19 +12,22 @@ Preference-based alignment from scratch: train a Bradley-Terry reward model on p
 ## Measured results (checked-in fixture, pinned in tests)
 
 ```
-Reward model holdout accuracy: 0.7800 (label-shuffled control: 0.4333)
-Expected learned reward: 2.1297 -> 4.2520
-True latent utility:     2.0375 -> 4.6154 (control-aligned policy: 2.5800)
-KL(pi || ref) paid: 1.0216   entropy: 0.7701
-Without the KL term (beta=0): KL 1.7781, entropy 0.0136
+Reward model holdout accuracy: 0.7800 (utility-independent-label control: 0.4333)
+Expected learned reward: 3.4641 -> 6.2462
+True latent utility:     2.0375 -> 4.5704 (control-aligned policy: 1.8549)
+KL(pi || ref) paid: 1.0750   entropy: 0.7167
+Without the KL term (beta=0): KL 1.7510, entropy 0.0407
 ```
 
-What the fixture shows, stated plainly:
+The unchanged original code regenerates these values. Earlier README numbers were stale; [the full correction table](FRONTIER.md#original-fixture-and-stale-prose-correction) preserves the old text and current values. Training, original tests and gate thresholds have not been adjusted to match prose.
 
-- The learned reward generalizes: 0.7800 holdout preference accuracy against 0.4333 for a model trained on utility-independent labels (utility-independent labels are expected to sit near chance on average; this finite seeded fixture lands at 0.4333).
-- Aligning to the learned reward buys real utility, not just reward hacking: true latent utility rises 2.0375 to 4.6154. The negative control matters here - aligning to the noise-trained model buys only 2.0375 to 2.5800 on this seeded fixture, so on this fixture the gain tracks preference signal rather than the optimization machinery alone. One seeded control is a fixture comparison, not a general proof.
-- The KL term is what keeps the policy spread out: with beta=0 the policy collapses onto the argmax-reward style (entropy 0.0136 vs 0.7701, KL 1.7781 vs 1.0216). The beta=0 ablation is gated from below so this stays demonstrated, not asserted.
-- Reward accuracy is bounded by preference noise: labels are drawn from sigmoid utility gaps, so even the Bayes-optimal ranker falls short of 1.0, and the suite pins an achievable gate (0.75), not a perfect one.
+On this seeded fixture, held-out pair accuracy is .7800 versus .4333 for a model trained on utility-independent labels. The holdout pairs reuse the same synthetic response pool; this is not evidence of generalization to new tasks or styles. Alignment to the learned reward raises synthetic utility from 2.0375 to 4.5704, while the noise-control policy lowers it to 1.8549. These are descriptive fixture comparisons, not causal attribution. The beta-zero ablation has lower entropy and higher KL than the original beta-.5 run. Every original result, including the control's adverse utility change, is retained.
+
+## v0.2: know what you optimized
+
+The [interactive finite-policy inspector](https://midya8.github.io/alignlab/) attaches the standard Gibbs optimum and KL-budget frontier to every original policy state. Independent native and browser evaluators show reward objective, optimizer gap, per-action probabilities, reference-weighted tied maxima, zero-support restrictions and a separate supplied-utility axis. The original learned, no-KL and noise-control runs plus two explicitly additional stiff-KL controls retain all 1,005 states. The noise-control optimizer is essentially optimal for its reward and still loses synthetic utility.
+
+Thirty-five full native/browser witnesses, independent high-precision controls, strict JSON exports and an isolated installed-wheel reconstruction check the implementation. Tiny budgets and unresolved near ties are explicit statuses, not silently claimed solutions. [Equations, schema, reproduction and limits](FRONTIER.md) distinguish closed-form mathematical results from floating-point diagnostics. Standard methods are attributed, not presented as a new alignment algorithm.
 
 ## CLI
 
@@ -44,11 +47,16 @@ python -m unittest discover -s tests
 bash examples/demo.sh
 ```
 
-15 tests. No dependencies beyond Python 3.10+.
+47 Python tests (15 original unchanged) plus four substantive Node/actual-Chrome tests. No runtime dependencies beyond Python 3.10+; browser tests require Node 22+ and Chrome.
+
+```bash
+node --test tests/test_frontier.cjs tests/test_frontier_browser.cjs
+bash examples/verify_wheel.sh
+```
 
 ## Limitations
 
-No PPO, no transformers, no sampled rollouts: the policy is categorical over six styles so every expectation and gradient is exact. That is the point - the alignment mechanics (preference modeling, KL-regularized reward maximization, the measurable KL cost, the negative control) are model-shape-independent. One measured caveat for practitioners: with a stiff KL coefficient, fixed-step ascent overshoots into the collapsed corner (the KL gradient vanishes as a style's probability approaches zero, so it never recovers); the suite's large-beta test uses a stable step size and the design notes describe the dynamic. Real RLHF adds a sequence model, sampled generations, a learned value baseline, and PPO-style clipped updates - none of which change what is being measured here.
+No PPO, no transformers, no sampled rollouts: the policy is categorical over six styles so every expectation and gradient is exact. That is the point - this finite experiment exposes preference modeling, KL-regularized reward maximization, KL cost and a negative control without claiming that its numerical or empirical results transfer to sequence models. The additional stiff-KL controls retain a fixed-large-step failure and a smaller-step run, without claiming a causal explanation or universal convergence result. Real RLHF adds a sequence model, sampled generations, a learned value baseline, and PPO-style clipped updates - the exact finite-action optimum here does not remove those costs or prove an RLHF benefit.
 
 ## License
 
