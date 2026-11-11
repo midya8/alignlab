@@ -29,6 +29,12 @@ The [interactive finite-policy inspector](https://midya8.github.io/alignlab/) at
 
 Thirty-five full native/browser witnesses, independent high-precision controls, strict JSON exports and an isolated installed-wheel reconstruction check the implementation. Tiny budgets and unresolved near ties are explicit statuses, not silently claimed solutions. [Equations, schema, reproduction and limits](FRONTIER.md) distinguish closed-form mathematical results from floating-point diagnostics. Standard methods are attributed, not presented as a new alignment algorithm.
 
+## v0.3: what did the preferences identify?
+
+The [exact preference-graph inspector](https://midya8.github.io/alignlab/identification.html) separates a solved reward objective from an identified target. Positive rational population comparison probabilities reconstruct connected-component merits; contradictory cycle products reject an exact scalar model. Disconnected component scales preserve every observed probability while changing the beta-1 Gibbs policy. Explicit scale bounds give exact action/component mass, cross-pair probability and supplied-utility ranges with every corner and all tied witnesses.
+
+Twelve complete controls, 107 retained corner records, separate propagation/all-simple-path Python evaluators and an independent BigInt browser engine check the full report. Bounds are assumptions, not confidence intervals; the input is not finite win-count data. The original learned model, 1,005 trajectory states and general-beta floating frontier remain unchanged. [Equations, proof, strict schema, controls and installed reproduction](IDENTIFICATION.md).
+
 ## CLI
 
 ```bash
@@ -47,10 +53,11 @@ python -m unittest discover -s tests
 bash examples/demo.sh
 ```
 
-47 Python tests (15 original unchanged) plus four substantive Node/actual-Chrome tests. No runtime dependencies beyond Python 3.10+; browser tests require Node 22+ and Chrome.
+65 Python tests (all 47 existing tests retained, including 15 original) plus eight substantive Node/actual-Chrome tests. No runtime dependencies beyond Python 3.10+; browser tests require Node 22+ and Chrome.
 
 ```bash
-node --test tests/test_frontier.cjs tests/test_frontier_browser.cjs
+node --test tests/test_frontier.cjs tests/test_frontier_browser.cjs \
+    tests/test_identification.cjs tests/test_identification_browser.cjs
 bash examples/verify_wheel.sh
 ```
 
