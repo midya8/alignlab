@@ -1,6 +1,8 @@
 # Exact preference identification, not finite-sample estimation
 
-The [v0.3 browser inspector](https://midya8.github.io/alignlab/identification.html) is an additive control beside the [original learned experiment and binary64 optimizer frontier](https://midya8.github.io/alignlab/). Original training, data, 1,005 trajectory states, floating evaluator and gate thresholds are unchanged.
+The [preference inspector](https://midya8.github.io/alignlab/identification.html) asks what the comparisons actually determine. It sits beside the [learned experiment and floating-point optimizer inspector](https://midya8.github.io/alignlab/), which ask how well a policy solves a supplied reward.
+
+The original training, data, 1,005 trajectory states, floating evaluator and gate thresholds are unchanged.
 
 ## The question
 
