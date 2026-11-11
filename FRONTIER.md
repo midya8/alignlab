@@ -1,6 +1,8 @@
 # Finite-policy optimum and KL frontier
 
-This is an additive audit of the original six-style synthetic experiment. No original trainer, data generator, policy update, evaluation function, test or gate threshold is changed. The inspector uses standard Gibbs variational mathematics, not a new alignment algorithm. Every computed number is a binary64 approximation.
+The original six-style experiment leaves a useful question: how close did its policy updates get to the best policy for each reward? This inspector answers it with the standard Gibbs optimum and a KL-budget calculation.
+
+The trainer, data generator, policy update, evaluation calculations, tests and gate thresholds are unchanged. This is not a new alignment algorithm. The equations are mathematical identities; computed numbers use binary64 arithmetic.
 
 ## The question being solved
 
