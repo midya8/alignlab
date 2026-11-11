@@ -1,12 +1,8 @@
-"""Measured alignment evaluation: reward accuracy, policy gain, KL cost.
+"""Train the seeded reward models and compare the resulting policies.
 
-The fixture trains a reward model on synthetic Bradley-Terry preference pairs,
-aligns a categorical policy over response styles against the learned reward
-with an exact KL penalty, and measures: holdout preference accuracy of the
-reward model, expected reward before/after alignment, the KL actually paid,
-true latent utility before/after (the quantity alignment is really after),
-and a negative control where a reward model trained on shuffled labels must
-not yield a true-utility gain.
+Report holdout accuracy, expected reward, latent utility, KL and entropy.
+The noise-label control is descriptive: its result on this fixture does not
+establish a causal effect or promise a particular outcome on another seed.
 """
 
 from __future__ import annotations
@@ -56,12 +52,11 @@ def run_evaluation(train_pairs: int = 800, holdout_pairs: int = 150,
     pi_before = ref
     pi_after = align_policy(rewards, beta, steps, lr, ref)
 
-    # beta ablation: no KL penalty collapses onto the reward argmax style.
+    # Compare the same update with beta zero; keep the finite-run result.
     pi_nokl = align_policy(rewards, 0.0, steps, lr, ref)
 
-    # Negative control: reward model trained on labels independent of utility
-    # (winner assigned by coin flip), so its holdout accuracy must sit near
-    # chance and aligning to it must not buy true utility.
+    # Assign winners by coin flip, independently of utility. Measure the
+    # resulting policy rather than assuming it cannot gain utility.
     rng = random.Random(seed + 7)
     noise = []
     for _ in range(len(train)):

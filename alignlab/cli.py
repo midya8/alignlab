@@ -1,4 +1,4 @@
-"""AlignLab CLI: evaluate preference-based alignment, enforce gates both sides."""
+"""Run the experiment, inspect reports and check supplied thresholds."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ def main(argv=None) -> int:
     p_gate.add_argument("--max-control-gain", type=float, default=None,
                         help="the label-shuffled control's true-utility gain must stay below this")
     p_gate.add_argument("--min-nokl-kl", type=float, default=None,
-                        help="beta=0 ablation must pay at least this KL (proves the penalty is what keeps the policy close)")
+                        help="require at least this measured KL in the beta=0 comparison")
 
     p_front = sub.add_parser('frontier-audit', help='audit a bounded finite-policy JSON file')
     p_front.add_argument('input')
