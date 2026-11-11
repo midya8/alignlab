@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alignlab"
-version = "0.1.0"
+version = "0.3.0"
 description = "Preference-based alignment from scratch with measured reward accuracy, KL cost, and policy gain"
 readme = "README.md"
 license = {text = "MIT"}

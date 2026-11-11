@@ -12,6 +12,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m unittest discover -s tests -v
+      - run: PYTHONPATH=. python scripts/regenerate_identification.py --check
   demo:
     runs-on: ubuntu-latest
     steps:
@@ -27,7 +28,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - run: node --test tests/test_frontier.cjs tests/test_frontier_browser.cjs
+      - run: node --test tests/test_frontier.cjs tests/test_frontier_browser.cjs tests/test_identification.cjs tests/test_identification_browser.cjs
   package:
     runs-on: ubuntu-latest
     steps:

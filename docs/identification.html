@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Exact population preference-graph identification, cycle certificates and bounded Gibbs-policy ambiguity, with an independent BigInt evaluator."
+    />
+    <title>AlignLab | What did the preferences identify?</title>
+    <link rel="stylesheet" href="identification.css" />
+    <script defer src="identification-data.js"></script>
+    <script defer src="identification-engine.js"></script>
+    <script defer src="identification-app.js"></script>
+  </head>
+  <body>
+    <header>
+      <a href="index.html">AlignLab / v0.3</a
+      ><a href="https://github.com/midya8/alignlab">Source + reproduction</a>
+    </header>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">Exact preference identification / beta = 1</p>
+        <h1>Same preferences.<br />Different policies.</h1>
+        <p class="lead">
+          A perfectly solved reward objective can still have an unidentified
+          target. Find what the comparison graph fixes, and what an assumed
+          component scale adds.
+        </p>
+        <p class="note">
+          Finite positive population probabilities, not observed win counts or
+          language-model results. Rational calculations are exact. The original
+          learned experiment and optimizer frontier stay
+          <a href="index.html">separate and unchanged</a>.
+        </p>
+      </section>
+      <section class="panel">
+        <p class="eyebrow">01 / Choose a falsifiable control</p>
+        <label
+          >Population comparison graph<select id="scenario"></select
+        ></label>
+        <p id="description"></p>
+        <details>
+          <summary>Edit the complete exact input</summary>
+          <p class="note">
+            1 to 6 items. Positive reference probabilities sum exactly to one.
+            Edge probabilities lie strictly in (0, 1). Integers or rational
+            strings only, no JSON floats. One positive scale-bound pair per
+            component, ordered by its smallest item index. Bounds are
+            assumptions, not confidence intervals. Items use 1 to 16 ASCII
+            letters or digits. Input rationals are limited to 512 bits.
+          </p>
+          <label
+            >Exact input JSON<textarea
+              id="custom"
+              rows="16"
+              spellcheck="false"
+            ></textarea></label
+          ><button id="apply">Apply exact input</button>
+        </details>
+        <p id="dirty" role="status"></p>
+        <p id="error" role="alert"></p>
+      </section>
+      <div id="results">
+        <section class="panel">
+          <p class="eyebrow">02 / First check the model</p>
+          <h2 id="answer"></h2>
+          <div id="summary" class="metrics"></div>
+          <p class="note">
+            The graph and wide tables scroll horizontally on small screens.
+            Complete values stay available in the tables.
+          </p>
+          <div id="graph"></div>
+          <p class="note">
+            An arrow a → b is labeled with odds u[a] / u[b], not a sampled win
+            or a causal influence. Canonical merits fix the smallest-index item
+            in each component at 1.
+          </p>
+          <div id="components"></div>
+          <details>
+            <summary>Every observed edge constraint</summary>
+            <div id="edges"></div>
+          </details>
+          <div id="cycles"></div>
+        </section>
+        <section class="panel" id="family">
+          <p class="eyebrow">03 / Then inspect the policy family</p>
+          <h2>What could move without changing an observed preference?</h2>
+          <p class="callout">
+            At beta = 1, reward r[i] = log u[i] gives policy pi[i] = q[i] u[i] /
+            sum(q[j] u[j]). A common scale cancels. Separate component scales do
+            not.
+          </p>
+          <div id="utility" class="metrics"></div>
+          <p class="note">
+            The supplied utility is only an evaluation axis. No ground-truth
+            human utility is inferred. The bounds below apply to the explicit
+            scale box, not every possible reward.
+          </p>
+          <h3>Every action and component mass range</h3>
+          <div id="ranges"></div>
+          <h3>Every pair probability, including unseen pairs</h3>
+          <div id="pairs"></div>
+          <p class="note">
+            Connected pairs are identified without scale bounds. Unconnected
+            pairs can vary. A fixed assumed scale may collapse the bounded range
+            without making the underlying graph identify it.
+          </p>
+          <h3>All box-corner witnesses</h3>
+          <label
+            >Inspect one complete witness<select id="vertex"></select
+          ></label>
+          <div id="selected"></div>
+          <details>
+            <summary id="corners-caption">
+              All corner policies and utility values
+            </summary>
+            <div id="corners"></div>
+          </details>
+          <p class="note">
+            Every extremum of these positive-denominator linear-fractional
+            objectives occurs at a box corner. All corners, duplicate policies
+            and tied witness indices are retained. Corner IDs are zero-based. A
+            box is at most 64 corners, not a statistical sample.
+          </p>
+        </section>
+      </div>
+      <section class="panel">
+        <p class="eyebrow">04 / Limits and reproduction</p>
+        <h2>Identification is not estimation.</h2>
+        <p>
+          The comparison probabilities here are exact population inputs under a
+          Bradley-Terry scalar-reward model. An inconsistent cycle rejects that
+          model for those exact inputs; noisy empirical rates can be
+          inconsistent without disproving an underlying population model.
+        </p>
+        <p>
+          Undirected comparison-support connectivity determines population
+          merits up to a global scale. It does not guarantee a finite-sample
+          maximum-likelihood estimate. That is a different directed win-graph
+          condition. This inspector performs no MLE fitting or smoothing.
+        </p>
+        <p>
+          Without scale bounds, any strictly positive component-mass vector is
+          possible. Zero mass is a limit, not attained under positive finite
+          merits. Full-support reference probabilities are required. General
+          beta, confidence intervals, statistical uncertainty and neural
+          training are outside this exact rational control.
+        </p>
+        <div class="actions">
+          <button id="input-export">Download exact input</button
+          ><button id="report-export">Download complete report</button>
+        </div>
+        <p id="export-status" role="status"></p>
+        <ul>
+          <li>
+            <a href="https://arxiv.org/abs/2305.18290"
+              >DPO: reward equivalence and the Gibbs policy mapping</a
+            >
+          </li>
+          <li>
+            <a href="https://ar5iv.labs.arxiv.org/html/2110.10825"
+              >BTL under general comparison graphs: identifiability versus
+              MLE</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://ellakaye.github.io/BradleyTerryScalable/articles/BradleyTerryScalable.html"
+              >Official BradleyTerryScalable graph and fitting documentation</a
+            >
+          </li>
+          <li>
+            <a href="https://arxiv.org/abs/math/0412232"
+              >Existence of maximum-likelihood estimates and boundary cases</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://proceedings.mlr.press/v108/vojnovic20a/vojnovic20a.pdf"
+              >Convergence rates: separate optimization and data conditions</a
+            >
+          </li>
+          <li>
+            <a href="https://arxiv.org/abs/1411.1168"
+              >Directed strong connection and a separate penalized model</a
+            >
+          </li>
+        </ul>
+        <p>
+          <a
+            href="https://github.com/midya8/alignlab/blob/main/IDENTIFICATION.md"
+            >Equations, full schema, proof and installed reproduction</a
+          >
+          · <a href="index.html">Original experiment and optimizer frontier</a>
+        </p>
+        <p class="note">
+          Standard Bradley-Terry and Gibbs results are attributed, not presented
+          as a new algorithm. Python propagation, a separate all-simple-path
+          reference and this BigInt path evaluator agree on complete frozen
+          reports.
+        </p>
+      </section>
+    </main>
+    <footer>
+      AlignLab / Known population preferences. Explicit assumptions. Exact
+      witnesses.
+    </footer>
+  </body>
+</html>
