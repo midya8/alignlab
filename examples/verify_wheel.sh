@@ -53,3 +53,21 @@ assert abs(r['current']['optimum']['probabilities'][0]-.25)<1e-14
 assert abs(r['current']['identity_residual'])<1e-12
 print('All four commands execute; installed analytic two-action optimum equals [1/4,3/4]')
 PY
+"$tmp/venv/bin/python" -m alignlab.identification_cli demo --output identification.json
+"$tmp/venv/bin/python" - "$root" <<'PY'
+import json,pathlib,sys,subprocess
+from alignlab.identification_verify import verify
+root=pathlib.Path(sys.argv[1])
+source=(root/'docs/identification-data.js').read_text()
+expected=json.loads(source.removeprefix('globalThis.AlignLabIdentificationFixtures = ').removesuffix(';\n'))
+actual=json.loads(pathlib.Path('identification.json').read_text())
+assert actual==expected
+for f in actual:
+    verify(f['input'],f['report'])
+    pathlib.Path('exact-input.json').write_text(json.dumps(f['input']))
+    subprocess.run([sys.executable,'-m','alignlab.identification_cli','audit','exact-input.json','--output','exact-report.json'],check=True)
+    assert json.loads(pathlib.Path('exact-report.json').read_text())==f['report']
+    result=subprocess.run([sys.executable,'-m','alignlab.identification_cli','verify','exact-input.json','exact-report.json'],check=True,capture_output=True,text=True)
+    assert json.loads(result.stdout)['verified'] is True
+print('Installed exact CLI reconstructs and independently verifies all12complete reports,107corners, every audit/verify roundtrip outside checkout')
+PY
