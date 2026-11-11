@@ -1,15 +1,38 @@
 # AlignLab
 
-Preference-based alignment from scratch: train a Bradley-Terry reward model on pairwise preferences, then align a policy by maximizing reward minus an exact KL penalty to a reference policy. No ML frameworks - the reward gradient, the policy gradient, and the KL accounting are all hand-derived Python, and every term is computed in closed form so nothing hides behind sampling noise.
+A small preference-learning experiment with two inspectors: one asks whether a policy solved its reward objective; the other asks whether the comparisons identified that objective in the first place.
 
-## What it does
+The experiment trains a linear Bradley-Terry reward model, then updates a categorical policy over six response styles. Everything runs in Python's standard library. Gradients are written by hand and checked with finite differences. There is no language model or sampled rollout.
 
-- Builds a synthetic response fixture: six response styles over interpretable features (helpful, correct, verbose, polite, toxic), with pairwise preferences drawn from a latent utility under Bradley-Terry noise from a fixed seed. The latent utility is never shown to the reward model.
-- Trains a linear reward model `r(x) = w . phi(x)` on preference pairs with the hand-derived logistic gradient `dL/dw = -(phi_w - phi_l) * sigmoid(-(r_w - r_l))`.
-- Aligns a categorical policy over styles by gradient ascent on `J = E_pi[r] - beta * KL(pi || ref)`, with expectations, KL, and both gradient terms in closed form; the policy gradient is finite-difference verified in the suite.
-- Measures the whole story: reward holdout accuracy, expected reward and true latent utility before/after, the KL actually paid, a beta=0 ablation, and a label-noise negative control.
+- [Policy optimum and KL budget](https://midya8.github.io/alignlab/)
+- [What the comparisons leave open](https://midya8.github.io/alignlab/identification.html)
 
-## Measured results (checked-in fixture, pinned in tests)
+## Start here
+
+```bash
+python -m alignlab evaluate
+python -m alignlab evaluate --format json
+python -m alignlab gates --min-reward-accuracy 0.75 --min-true-utility-gain 2.0 \
+    --max-kl 1.2 --max-control-gain 0.2 --min-nokl-kl 1.5
+```
+
+The gates exit 1 and name the failed checks. The suite tests both outcomes: the settings above pass; `--min-reward-accuracy 0.99` fails.
+
+## The experiment
+
+The fixture has 120 synthetic response feature vectors, grouped into six styles. Features represent helpfulness, correctness, verbosity, politeness and toxicity. A fixed latent utility generates noisy Bradley-Terry preference labels. The reward model never sees that utility.
+
+Training uses 800 preference pairs; evaluation uses 150 held-out pairs from the same response pool. A separate control trains on 800 utility-independent labels. These are not new tasks, response styles or people, so the holdout result does not establish generalization to them.
+
+The model is `r(x) = w . phi(x)`. Its pairwise loss gradient is
+
+```
+dL/dw = -(phi_w - phi_l) * sigmoid(-(r_w - r_l))
+```
+
+The policy then ascends `J = E_pi[r] - beta * KL(pi || ref)`. The expectations, KL and policy gradient are computed over the whole finite action list, without sampling. Evaluation reports reward accuracy, learned reward, latent utility, KL and entropy, alongside no-KL and label-noise controls.
+
+## Results from the checked-in fixture
 
 ```
 Reward model holdout accuracy: 0.7800 (utility-independent-label control: 0.4333)
@@ -19,51 +42,46 @@ KL(pi || ref) paid: 1.0750   entropy: 0.7167
 Without the KL term (beta=0): KL 1.7510, entropy 0.0407
 ```
 
-The unchanged original code regenerates these values. Earlier README numbers were stale; [the full correction table](FRONTIER.md#original-fixture-and-stale-prose-correction) preserves the old text and current values. Training, original tests and gate thresholds have not been adjusted to match prose.
+The noise-control policy loses utility even though it nearly solves its own reward objective. The learned-reward policy raises utility on this fixture. Those are descriptive comparisons, not evidence that a particular component caused the difference.
 
-On this seeded fixture, held-out pair accuracy is .7800 versus .4333 for a model trained on utility-independent labels. The holdout pairs reuse the same synthetic response pool; this is not evidence of generalization to new tasks or styles. Alignment to the learned reward raises synthetic utility from 2.0375 to 4.5704, while the noise-control policy lowers it to 1.8549. These are descriptive fixture comparisons, not causal attribution. The beta-zero ablation has lower entropy and higher KL than the original beta-.5 run. Every original result, including the control's adverse utility change, is retained.
+Earlier README numbers were stale. The [old/current table](FRONTIER.md#original-fixture-and-stale-prose-correction) keeps the discrepancy visible. The original training, data, tests and gate thresholds were not changed to fit the prose.
 
-## v0.2: know what you optimized
+## Did the policy solve its reward objective?
 
-The [interactive finite-policy inspector](https://midya8.github.io/alignlab/) attaches the standard Gibbs optimum and KL-budget frontier to every original policy state. Independent native and browser evaluators show reward objective, optimizer gap, per-action probabilities, reference-weighted tied maxima, zero-support restrictions and a separate supplied-utility axis. The original learned, no-KL and noise-control runs plus two explicitly additional stiff-KL controls retain all 1,005 states. The noise-control optimizer is essentially optimal for its reward and still loses synthetic utility.
+The [optimizer inspector](https://midya8.github.io/alignlab/) attaches the standard finite-action Gibbs optimum and a KL-budget frontier to each recorded state. It shows action probabilities, the objective-gap identity, reference-weighted ties, zero-support restrictions and a separate utility axis.
 
-Thirty-five full native/browser witnesses, independent high-precision controls, strict JSON exports and an isolated installed-wheel reconstruction check the implementation. Tiny budgets and unresolved near ties are explicit statuses, not silently claimed solutions. [Equations, schema, reproduction and limits](FRONTIER.md) distinguish closed-form mathematical results from floating-point diagnostics. Standard methods are attributed, not presented as a new alignment algorithm.
+All 201 states of the original learned, no-KL and noise-control runs are kept. Two additional beta-50 controls bring the total to 1,005 states. Their large-step failure is visible rather than replaced with a better run. This pair of controls does not establish a general learning-rate or alignment mechanism.
 
-## v0.3: what did the preferences identify?
+The calculation is closed form mathematically, but its numbers use binary64 arithmetic. Tiny budgets and unresolved near ties get explicit statuses, not claimed solutions. Thirty-five full report witnesses, high-precision controls, JSON checks and installed-wheel reconstruction test the implementation. [Equations and numerical limits](FRONTIER.md).
 
-The [exact preference-graph inspector](https://midya8.github.io/alignlab/identification.html) separates a solved reward objective from an identified target. Positive rational population comparison probabilities reconstruct connected-component merits; contradictory cycle products reject an exact scalar model. Disconnected component scales preserve every observed probability while changing the beta-1 Gibbs policy. Explicit scale bounds give exact action/component mass, cross-pair probability and supplied-utility ranges with every corner and all tied witnesses.
+## Did the comparisons identify the target?
 
-Twelve complete controls, 107 retained corner records, separate propagation/all-simple-path Python evaluators and an independent BigInt browser engine check the full report. Bounds are assumptions, not confidence intervals; the input is not finite win-count data. The original learned model, 1,005 trajectory states and general-beta floating frontier remain unchanged. [Equations, proof, strict schema, controls and installed reproduction](IDENTIFICATION.md).
+The [preference inspector](https://midya8.github.io/alignlab/identification.html) takes exact population probabilities, not empirical win counts. It reconstructs merit ratios within each connected component. Contradictory cycle odds reject an exact scalar-reward fit. Disconnected components keep free relative scales, so different Gibbs policies can preserve every observed comparison.
 
-## CLI
+At beta 1, rational merits give rational policy probabilities. Supply a positive scale interval for each component and the inspector shows every corner policy, all tied witnesses, action/component mass ranges, cross-pair probabilities and supplied-utility extremes. The bounds are assumptions, not confidence intervals. Utility is an evaluation input, not inferred human utility.
 
-```bash
-python -m alignlab evaluate
-python -m alignlab evaluate --format json
-python -m alignlab gates --min-reward-accuracy 0.75 --min-true-utility-gain 2.0 \
-    --max-kl 1.2 --max-control-gain 0.2 --min-nokl-kl 1.5
-```
-
-Gates exit 1 with named failures. Both directions are pinned by tests: the achievable set above passes, and `--min-reward-accuracy 0.99` fails.
+Twelve controls contain 107 corner records. A propagation-based Python producer, a separate all-simple-path reference and a browser BigInt implementation compare the full reports. The original learned experiment and general-beta floating inspector remain separate. [Proof, schema, controls and replay commands](IDENTIFICATION.md).
 
 ## Development
+
+Python 3.10+ is enough at runtime; there are no runtime packages to install. Browser tests need Node 22+ and Chrome.
 
 ```bash
 python -m unittest discover -s tests
 bash examples/demo.sh
-```
-
-65 Python tests (all 47 existing tests retained, including 15 original) plus eight substantive Node/actual-Chrome tests. No runtime dependencies beyond Python 3.10+; browser tests require Node 22+ and Chrome.
-
-```bash
+PYTHONPATH=. python scripts/regenerate_identification.py --check
 node --test tests/test_frontier.cjs tests/test_frontier_browser.cjs \
     tests/test_identification.cjs tests/test_identification_browser.cjs
 bash examples/verify_wheel.sh
 ```
 
-## Limitations
+There are 65 Python tests: all 47 earlier tests, including the 15 original tests, plus 18 identification tests. Eight Node/actual-Chrome tests include all four earlier tests. The installed-wheel check runs outside the checkout and reconstructs both the old experiment and the new exact reports.
 
-No PPO, no transformers, no sampled rollouts: the policy is categorical over six styles so every expectation and gradient is exact. That is the point - this finite experiment exposes preference modeling, KL-regularized reward maximization, KL cost and a negative control without claiming that its numerical or empirical results transfer to sequence models. The additional stiff-KL controls retain a fixed-large-step failure and a smaller-step run, without claiming a causal explanation or universal convergence result. Real RLHF adds a sequence model, sampled generations, a learned value baseline, and PPO-style clipped updates - the exact finite-action optimum here does not remove those costs or prove an RLHF benefit.
+## Limits
+
+This is not PPO, DPO training or a transformer model. Enumerating six styles makes the expectations tractable; it does not remove the cost of sequence-model optimization or show that these results transfer to it. Real RLHF adds generated sequences, sampled updates and often a value model and PPO-style clipping.
+
+The exact preference inspector only covers positive population probabilities, full-support references and beta 1. Its graph-identification question is different from finite-sample MLE existence. The older inspector uses floating-point diagnostics, not outward-rounded certificates. Neither inspector proves safety, human preference satisfaction or generalization. Standard Bradley-Terry and Gibbs methods are credited in the linked method notes.
 
 ## License
 
