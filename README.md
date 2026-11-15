@@ -76,8 +76,8 @@ bash examples/verify_wheel.sh
 ```
 
 There are 69 Python tests: all 65 earlier tests, including the 15 original tests,
-plus four action-refinement tests. Nine Node/actual-Chrome tests retain both
-inspectors. The installed-wheel check runs outside the checkout and reconstructs both the old experiment and the new exact reports.
+plus four action-refinement tests. Eight substantive Node/actual-Chrome tests
+retain both inspectors; the all-files runner also includes a helper module. The installed-wheel check runs outside the checkout and reconstructs both the old experiment and the new exact reports.
 
 ## When one action is split into two copies
 
