@@ -75,7 +75,35 @@ node --test tests/test_frontier.cjs tests/test_frontier_browser.cjs \
 bash examples/verify_wheel.sh
 ```
 
-There are 65 Python tests: all 47 earlier tests, including the 15 original tests, plus 18 identification tests. Eight Node/actual-Chrome tests include all four earlier tests. The installed-wheel check runs outside the checkout and reconstructs both the old experiment and the new exact reports.
+There are 69 Python tests: all 65 earlier tests, including the 15 original tests,
+plus four action-refinement tests. Nine Node/actual-Chrome tests retain both
+inspectors. The installed-wheel check runs outside the checkout and reconstructs both the old experiment and the new exact reports.
+
+## When one action is split into two copies
+
+An action label should not earn more policy mass merely because it appears
+twice. The action-refinement tests split one action into two copies with the
+same reward. Both reference and current-policy mass are split in the same
+ratio `w : (1-w)`. Aggregating the copies preserves the Gibbs policy, expected
+reward, KL, current objective and objective gap. The KL-budget frontier also
+preserves its aggregate policy and saturation budget on the checked controls.
+The reported entropy is different: cloning adds `p(action) * H(w)` because the
+action list now distinguishes the copies. Equal entropy is not an invariant.
+
+Four tests cover every action of eight existing numerical controls at three
+dyadic split ratios, every action of 80 generated models at beta 0, 1/8 and 2,
+and explicit failures of the assumptions. Duplicating rewards while replacing
+the reference with a new uniform distribution changes the optimization problem.
+Splitting the current policy in a different ratio adds within-copy KL. Splitting
+the smallest positive binary64 reference mass in half erases its support and
+can change even the zero-beta optimum; that operation is outside the audit's
+support-preserving premise. Unresolved near-tie budget brackets are excluded,
+not presented as invariant numerical certificates.
+
+These are finite consistency checks, not an independent proof of the optimizer
+or a new alignment result. They leave the engine, original training, data,
+recorded reports, gates and browser calculations unchanged. The installed-wheel
+check still reconstructs the original experiment and both inspectors' reports.
 
 ## Limits
 
