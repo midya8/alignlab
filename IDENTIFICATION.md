@@ -1,6 +1,6 @@
 # Exact preference identification, not finite-sample estimation
 
-The [preference inspector](https://midya8.github.io/alignlab/identification.html) asks what the comparisons actually determine. It sits beside the [learned experiment and floating-point optimizer inspector](https://midya8.github.io/alignlab/), which ask how well a policy solves a supplied reward.
+The [preference inspector](https://midya8.github.io/preference-optimization/identification.html) asks what the comparisons actually determine. It sits beside the [learned experiment and floating-point optimizer inspector](https://midya8.github.io/preference-optimization/), which ask how well a policy solves a supplied reward.
 
 The original training, data, 1,005 trajectory states, floating evaluator and gate thresholds are unchanged.
 
