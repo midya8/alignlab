@@ -1,11 +1,11 @@
-# AlignLab
+# Preference optimization
 
 A small preference-learning experiment with two inspectors: one asks whether a policy solved its reward objective; the other asks whether the comparisons identified that objective in the first place.
 
 The experiment trains a linear Bradley-Terry reward model, then updates a categorical policy over six response styles. Everything runs in Python's standard library. Gradients are written by hand and checked with finite differences. There is no language model or sampled rollout.
 
-- [Policy optimum and KL budget](https://midya8.github.io/alignlab/)
-- [What the comparisons leave open](https://midya8.github.io/alignlab/identification.html)
+- [Policy optimum and KL budget](https://midya8.github.io/preference-optimization/)
+- [What the comparisons leave open](https://midya8.github.io/preference-optimization/identification.html)
 
 ## Start here
 
@@ -48,7 +48,7 @@ Earlier README numbers were stale. The [old/current table](FRONTIER.md#original-
 
 ## Did the policy solve its reward objective?
 
-The [optimizer inspector](https://midya8.github.io/alignlab/) attaches the standard finite-action Gibbs optimum and a KL-budget frontier to each recorded state. It shows action probabilities, the objective-gap identity, reference-weighted ties, zero-support restrictions and a separate utility axis.
+The [optimizer inspector](https://midya8.github.io/preference-optimization/) attaches the standard finite-action Gibbs optimum and a KL-budget frontier to each recorded state. It shows action probabilities, the objective-gap identity, reference-weighted ties, zero-support restrictions and a separate utility axis.
 
 All 201 states of the original learned, no-KL and noise-control runs are kept. Two additional beta-50 controls bring the total to 1,005 states. Their large-step failure is visible rather than replaced with a better run. This pair of controls does not establish a general learning-rate or alignment mechanism.
 
@@ -56,7 +56,7 @@ The calculation is closed form mathematically, but its numbers use binary64 arit
 
 ## Did the comparisons identify the target?
 
-The [preference inspector](https://midya8.github.io/alignlab/identification.html) takes exact population probabilities, not empirical win counts. It reconstructs merit ratios within each connected component. Contradictory cycle odds reject an exact scalar-reward fit. Disconnected components keep free relative scales, so different Gibbs policies can preserve every observed comparison.
+The [preference inspector](https://midya8.github.io/preference-optimization/identification.html) takes exact population probabilities, not empirical win counts. It reconstructs merit ratios within each connected component. Contradictory cycle odds reject an exact scalar-reward fit. Disconnected components keep free relative scales, so different Gibbs policies can preserve every observed comparison.
 
 At beta 1, rational merits give rational policy probabilities. Supply a positive scale interval for each component and the inspector shows every corner policy, all tied witnesses, action/component mass ranges, cross-pair probabilities and supplied-utility extremes. The bounds are assumptions, not confidence intervals. Utility is an evaluation input, not inferred human utility.
 
